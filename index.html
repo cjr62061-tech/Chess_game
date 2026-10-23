@@ -1,0 +1,159 @@
+cat > index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chess Game Online - Play vs Computer & Friend Free</title>
+<meta name="description" content="Play Free Online Chess Game vs Computer or Friend. Best chess game with bot, hints, undo, timer. No download needed.">
+<meta name="keywords" content="chess game, chess online, play chess vs computer, free chess game">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+<style>
+*{box-sizing:border-box}
+body{background:#0f0f0f;color:#fff;font-family:system-ui;text-align:center;margin:0;padding:10px}
+h1{color:#81b64c;margin:10px}
+#main{display:flex;flex-wrap:wrap;justify-content:center;gap:15px;max-width:1000px;margin:auto}
+#board{width:480px;max-width:95vw;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.8)}
+#panel{background:#1e1e1e;padding:15px;border-radius:10px;width:300px;text-align:left}
+button{width:100%;padding:10px;margin:5px 0;background:#81b64c;border:0;color:#fff;border-radius:6px;font-weight:bold;cursor:pointer}
+button.sec{background:#333}
+select{width:100%;padding:10px;border-radius:6px;margin:5px 0}
+#status{font-size:18px;font-weight:bold;color:#81b64c;text-align:center;margin:10px 0}
+.pgn{font-size:12px;color:#aaa;max-height:100px;overflow:auto;background:#111;padding:8px;border-radius:6px}
+</style>
+</head>
+<body>
+<h1>♔ Ultimate Chess Game ♚</h1>
+<div id="main">
+<div id="board"></div>
+<div id="panel">
+<div id="status">White to move</div>
+
+<label>Game Mode:</label>
+<select id="mode">
+<option value="friend">👥 2 Player (Friend)</option>
+<option value="bot-easy">🤖 Bot - Easy</option>
+<option value="bot-medium" selected>🤖 Bot - Medium</option>
+<option value="bot-hard">🤖 Bot - Hard (Pro)</option>
+</select>
+
+<button onclick="newGame()">🔄 New Game</button>
+<button class="sec" onclick="undoMove()">↩️ Undo Move</button>
+<button class="sec" onclick="board.flip()">🔃 Flip Board</button>
+<button class="sec" onclick="showHint()">💡 Hint</button>
+
+<h3 style="margin:10px 0 5px">Moves:</h3>
+<div class="pgn" id="pgn"></div>
+
+<p style="font-size:12px;color:#666;margin-top:15px">SEO Ready | Fast | Mobile Friendly | Bot AI Included</p>
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+<script>
+var board=null, game=new Chess();
+
+function evaluateBoard(b){
+var vals={p:10,n:30,b:30,r:50,q:90,k:900};
+var total=0;
+var fen=b.fen().split(' ')[0];
+for(var c of fen){
+if(c=='/') continue;
+if(!isNaN(c)) continue;
+var low=c.toLowerCase();
+if(vals[low]){
+if(c==c.toUpperCase()) total+=vals[low];
+else total-=vals[low];
+}
+}
+return total;
+}
+
+function minimax(depth, isMax, alpha, beta){
+if(depth==0 || game.game_over()) return evaluateBoard(game);
+var moves=game.moves();
+var best=isMax ? -9999 : 9999;
+for(var m of moves){
+game.move(m);
+var val=minimax(depth-1, !isMax, alpha, beta);
+game.undo();
+if(isMax){ best=Math.max(best,val); alpha=Math.max(alpha,val); }
+else{ best=Math.min(best,val); beta=Math.min(beta,val); }
+if(beta<=alpha) break;
+}
+return best;
+}
+
+function getBestMove(diff){
+var moves=game.moves();
+if(moves.length==0) return null;
+if(diff=='easy') return moves[Math.floor(Math.random()*moves.length)];
+var depth= diff=='medium' ? 2 : 3;
+var bestVal=-9999, bestMove=null;
+for(var m of moves){
+game.move(m);
+var v=minimax(depth-1, false, -9999, 9999);
+game.undo();
+if(v>bestVal){bestVal=v; bestMove=m;}
+}
+return bestMove;
+}
+
+function makeBotMove(){
+var mode=document.getElementById('mode').value;
+if(mode=='friend') return;
+if(game.game_over()) return;
+if(game.turn()=='b'){
+setTimeout(function(){
+var diff=mode.split('-')[1];
+var mv=getBestMove(diff);
+if(mv){game.move(mv); board.position(game.fen()); updateStatus();}
+},300);
+}
+}
+
+function onDragStart(s,p){
+if(game.game_over()) return false;
+if(document.getElementById('mode').value!='friend' && game.turn()=='b') return false;
+if((game.turn()=='w' && p.search(/^b/)!==-1) || (game.turn()=='b' && p.search(/^w/)!==-1)) return false;
+}
+function onDrop(s,t){
+var m=game.move({from:s,to:t,promotion:'q'});
+if(m===null) return 'snapback';
+updateStatus();
+window.setTimeout(makeBotMove,250);
+}
+function onSnapEnd(){board.position(game.fen())}
+function updateStatus(){
+var st='';var moveColor= game.turn()=='w'?'White':'Black';
+if(game.in_checkmate()) st='Checkmate! '+(moveColor=='White'?'Black':'White')+' Wins';
+else if(game.in_draw()) st='Draw!';
+else{st=moveColor+' to move'; if(game.in_check()) st+=' - CHECK!'}
+document.getElementById('status').innerText=st;
+document.getElementById('pgn').innerText=game.pgn();
+}
+function newGame(){game.reset(); board.position('start'); updateStatus();}
+function undoMove(){game.undo(); game.undo(); board.position(game.fen()); updateStatus();}
+function showHint(){
+var mv=getBestMove('medium');
+if(mv) alert('Best Hint: '+mv);
+}
+
+board=Chessboard('board',{
+draggable:true,
+position:'start',
+pieceTheme:'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+onDragStart:onDragStart,
+onDrop:onDrop,
+onSnapEnd:onSnapEnd
+});
+updateStatus();
+</script>
+</body>
+</html>
+EOF
+git add index.html
+git commit -m "pro version with bot ai"
+git push
