@@ -61,7 +61,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig={apiKey:"AIzaSyC_xJyQy4PE2INyorGEZshzS8Gnu2G9o",authDomain:"myapp52-d02d6.firebaseapp.com",projectId:"myapp52-d02d6",storageBucket:"myapp52-d02d6.firebasestorage.app",messagingSenderId:"998479074578",appId:"1:998479074578:web:365ab293f9fe9e4398cfcb"};
+const firebaseConfig={
+  apiKey:"AIzaSyC_xJgAyK4PEZEiNyorGEZshz58Gnu29Go",
+  authDomain:"myapp52-d02d6.firebaseapp.com",
+  projectId:"myapp52-d02d6",
+  storageBucket:"myapp52-d02d6.firebasestorage.app",
+  messagingSenderId:"998479074578",
+  appId:"1:998479074578:web:365ab293f9fe9e4398cfcb"
+};
 firebase.initializeApp(firebaseConfig); const auth=firebase.auth(); const db=firebase.firestore(); auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 let currentUser=null,isPro=false;
 function updateUI(u,d){ isPro=d&&d.isPro; document.getElementById('blueTick').style.display=isPro?'inline-flex':'none'; document.getElementById('pTick').style.display=isPro?'inline-flex':'none'; document.getElementById('proBadge').style.display=isPro?'inline-block':'none'; document.getElementById('proStatus').innerText=isPro?'PRO ✓':'Free'; document.getElementById('pStatus').innerText=isPro?'Blue Tick Verified • Lifetime':'Free'; document.getElementById('coins').innerText=d?.score||0; document.getElementById('userEmail').innerText=u.email||'Guest'; }
