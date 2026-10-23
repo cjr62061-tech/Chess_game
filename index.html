@@ -91,5 +91,11 @@ function loadWorldChat(){ db.collection('world_chat').orderBy('time','desc').lim
 function sendWorld(){ const inp=document.getElementById('worldIn'); if(!inp.value.trim()) return; db.collection('world_chat').add({text:inp.value,user:currentUser.email||'Guest',isPro:isPro,time:new Date()}); inp.value=''; }
 function askAI(){ const q=document.getElementById('aiIn').value.trim(); if(!q) return; const chat=document.getElementById('aiChat'); let u=document.createElement('div'); u.innerHTML=`<div class="bg-slate-800 p-2 rounded mt-2">You: ${q}</div>`; chat.appendChild(u); let a=document.createElement('div'); a.className='bg-cyan-950 p-2 rounded mt-2'; let ans=''; try{ if(/[0-9+\-*/x%]+/.test(q)) ans='Answer: '+eval(q.replace(/x/g,'*').replace(/[^0-9+\-*/().% ]/g,'')); else if(q.toLowerCase().includes('capital')) ans='MP Capital Bhopal'; else ans=isPro?`AI Pro: ${q} ka detailed solution...`: `AI: ${q} - Full solution PRO me`; }catch{ ans='Try simple maths like 12*15'; } a.innerHTML=`AI Bhai: ${ans}`; chat.appendChild(a); document.getElementById('aiIn').value=''; chat.scrollTop=chat.scrollHeight; }
 </script>
+<footer style="text-align:center;padding:30px;color:#888;font-size:13px;border-top:1px solid #222;margin-top:40px">
+  <a href="about.html" style="color:#888;margin:0 10px">About</a> |
+  <a href="privacy.html" style="color:#888;margin:0 10px">Privacy Policy</a> |
+  <a href="contact.html" style="color:#888;margin:0 10px">Contact</a>
+  <p style="margin-top:10px">© 2026 CJR HUB</p>
+</footer>
 </body>
 </html>
