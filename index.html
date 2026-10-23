@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chess Game - Play Now</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+<style>
+body { background:#161512; color:white; text-align:center; font-family:sans-serif; }
+#board { width:400px; margin:20px auto; max-width:90vw; }
+button { padding:10px 20px; background:#81b64c; border:0; color:white; font-size:18px; border-radius:5px; cursor:pointer; margin:5px; }
+h1 { color:#81b64c; }
+</style>
+</head>
+<body>
+<h1>♔ Chess Game ♚</h1>
+<div id="board"></div>
+<p id="status">White to move</p>
+<button onclick="location.reload()">New Game</button>
+<button onclick="undo()">Undo Move</button>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+<script>
+var board = null
+var game = new Chess()
+function onDragStart (source, piece, position, orientation) {
+  if (game.game_over()) return false
+  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) { return false }
+}
+function onDrop (source, target) {
+  var move = game.move({ from: source, to: target, promotion: 'q' })
+  if (move === null) return 'snapback'
+  updateStatus()
+}
+function onSnapEnd () { board.position(game.fen()) }
+function updateStatus () {
+  var status = ''; var moveColor = 'White'; if (game.turn() === 'b') moveColor = 'Black'
+  if (game.in_checkmate()) status = 'Game Over, ' + moveColor + ' is in checkmate.'
+  else if (game.in_draw()) status = 'Game Over, Draw'
+  else { status = moveColor + ' to move'; if (game.in_check()) status += ', ' + moveColor + ' is in check' }
+  document.getElementById('status').innerHTML = status
+}
+function undo(){ game.undo(); board.position(game.fen()); updateStatus(); }
+board = Chessboard('board', { draggable: true, position: 'start', onDragStart: onDragStart, onDrop: onDrop, onSnapEnd: onSnapEnd })
+</script>
+</body>
+</html>
