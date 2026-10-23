@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CJR HUB - Final Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+<style>body{background:#020617;color:#fff}.glass{background:rgba(15,23,42,.9);border:1px solid #1e293b}.tab.active{background:#38bdf8;color:#000}.game{display:none}.game.active{display:block}#board{width:400px;max-width:90vw;margin:auto}.tick{background:#1d9bf0;color:#fff;border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:10px}</style>
+</head>
+<body>
+<header class="sticky top-0 z-50 glass p-3 flex justify-between items-center flex-wrap gap-2">
+<b>🎮 CJR HUB <span id="blueTick" class="hidden tick">✓</span> <span id="proBadge" class="hidden bg-yellow-400 text-black text-[9px] px-2 rounded-full">PRO LIFETIME</span></b>
+<div class="flex gap-1 flex-wrap text-[11px]">
+<button class="tab active px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('chess',this)">Chess</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('ttt',this)">TicTac</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('snake',this)">Snake</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('ludo',this)">Ludo</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('exam',this)">Exam</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('ball',this)">Ball</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('world',this)">World</button>
+<button class="tab px-2 py-1 bg-slate-800 rounded-full" onclick="showTab('ai',this)">AI</button>
+<button class="tab px-2 py-1 bg-yellow-400 text-black rounded-full font-black" onclick="showTab('pro',this)">PRO ₹200</button>
+</div>
+<span id="userEmail" class="text-[10px] text-slate-500"></span>
+</header>
+
+<div class="max-w-5xl mx-auto p-3">
+<input id="globalSearch" oninput="doSearch(this.value)" placeholder="🔍 Search Chess, Snake, MP GK, Maths..." class="w-full p-3 rounded-full bg-slate-900 border border-slate-700 text-xs">
+
+<div id="authBox" class="glass p-6 rounded-2xl max-w-md mx-auto mt-6 text-center">
+<h2 class="text-xl font-black">Login to CJR Hub</h2>
+<input id="email" placeholder="Email" class="w-full p-3 mt-3 rounded-xl bg-slate-900">
+<input id="pass" type="password" placeholder="Password" class="w-full p-3 mt-2 rounded-xl bg-slate-900">
+<button onclick="login()" class="w-full mt-3 bg-cyan-400 text-black font-bold p-3 rounded-xl">Login</button>
+<button onclick="signup()" class="w-full mt-2 bg-slate-800 p-3 rounded-xl">Create Account</button>
+<button onclick="guestLogin()" class="w-full mt-2 border border-dashed border-slate-600 p-3 rounded-xl text-xs">Guest</button>
+<p id="msg" class="text-yellow-400 text-xs mt-2"></p>
+</div>
+
+<div id="gamesWrap" style="display:none">
+<div class="glass p-3 rounded-xl flex justify-between items-center mb-3">
+<div class="flex gap-2 items-center"><div id="avatar" class="w-8 h-8 bg-cyan-400 rounded-full flex items-center justify-center text-black font-bold">C</div><div><p id="pName" class="text-sm font-bold">User <span id="pTick" class="hidden tick">✓</span></p><p id="pStatus" class="text-[10px] text-slate-400">Free</p></div></div>
+<div class="text-[10px]">Coins: <span id="coins">0</span> | <span id="proStatus">Free</span></div>
+</div>
+
+<div id="chess" class="game active"><div class="glass p-4 rounded-2xl"><p id="chessStatus" class="text-xs">White to move</p><div id="board" class="my-2"></div><button onclick="resetChess()" class="bg-slate-700 px-3 py-1 rounded text-xs">New</button> <button onclick="undoChess()" class="bg-slate-700 px-3 py-1 rounded text-xs">Undo (Pro)</button></div></div>
+<div id="ttt" class="game"><div class="glass p-4 rounded-2xl text-center"><div id="tttBoard" class="grid grid-cols-3 gap-2 w-60 mx-auto"></div><p id="tttStatus" class="text-xs mt-2">X Turn</p><button onclick="resetTTT()" class="mt-2 bg-slate-700 px-3 py-1 rounded text-xs">Reset</button></div></div>
+<div id="snake" class="game"><div class="glass p-4 rounded-2xl text-center"><canvas id="snakeCanvas" width="300" height="300" class="bg-black mx-auto rounded"></canvas><p class="text-xs">Score <span id="snakeScore">0</span></p><button onclick="startSnake()" class="bg-green-500 px-4 py-1 rounded text-xs">Start</button></div></div>
+<div id="ludo" class="game"><div class="glass p-4 rounded-2xl text-center"><p>Dice: <span id="dice">-</span></p><button onclick="rollDice()" class="bg-yellow-400 text-black px-4 py-1 rounded">Roll</button><div id="ludoBoard" class="grid grid-cols-4 gap-1 w-64 mx-auto mt-2"></div></div></div>
+<div id="exam" class="game"><div class="glass p-4 rounded-2xl"><select id="subject" class="bg-slate-900 p-2 rounded w-full text-xs"><option>Maths</option><option>Science</option><option>MP GK</option><option>Computer</option><option>Chess Tactics</option></select><button onclick="startExam()" class="bg-green-500 px-4 py-1 rounded mt-2 text-xs">Start Exam</button><div id="quizBox" style="display:none" class="mt-3"><p id="question" class="font-bold text-sm"></p><div id="options" class="mt-2"></div><button onclick="nextQ()" class="mt-2 bg-cyan-400 text-black px-4 py-1 rounded text-xs">Next</button></div><p id="result" class="mt-2 text-sm font-bold"></p></div></div>
+<div id="ball" class="game"><div class="glass p-4 rounded-2xl text-center"><div id="area" class="relative w-full h-[35vh] bg-slate-950 rounded-xl"></div><p class="text-xs">Score <span id="bScore">0</span> Time <span id="bTime">30</span></p><button onclick="startBall()" class="bg-yellow-400 text-black px-4 py-1 rounded-full text-xs">Start</button></div></div>
+<div id="world" class="game"><div class="glass p-4 rounded-2xl"><div id="globalChat" class="h-56 overflow-auto bg-slate-950 p-2 rounded text-xs"></div><div class="flex gap-2 mt-2"><input id="worldIn" placeholder="Message" class="bg-slate-900 p-2 rounded flex-1 text-xs"><button onclick="sendWorld()" class="bg-cyan-400 text-black px-3 rounded text-xs">Send</button></div></div></div>
+<div id="ai" class="game"><div class="glass p-4 rounded-2xl"><div id="aiChat" class="h-56 overflow-auto bg-slate-950 p-2 rounded text-xs">AI Bhai: Pucho kuch bhi!</div><div class="flex gap-2 mt-2"><input id="aiIn" placeholder="Ask..." class="bg-slate-900 p-2 rounded flex-1 text-xs"><button onclick="askAI()" class="bg-white text-black px-3 rounded text-xs">Ask</button></div></div></div>
+<div id="pro" class="game"><div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-5 rounded-2xl text-center text-black"><h2 class="font-black text-xl">💎 LIFETIME PRO ₹200 + BLUE TICK</h2><a href="upi://pay?pa=6265910357-2@ybl&pn=CJR PRO&am=200&cu=INR" class="block bg-black text-white p-3 rounded-xl mt-3 font-bold text-sm">Pay ₹200 via UPI</a><input id="txnId" placeholder="Transaction ID" class="w-full p-3 mt-3 rounded-xl bg-black text-white text-xs"><button onclick="verifyPro()" class="w-full bg-black text-white p-3 rounded-xl mt-2 font-bold text-xs">Verify & Get Blue Tick Lifetime</button><p id="proMsg" class="text-xs mt-2 font-bold"></p></div></div>
+</div></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig={apiKey:"AIzaSyC_xJyQy4PE2INyorGEZshzS8Gnu2G9o",authDomain:"myapp52-d02d6.firebaseapp.com",projectId:"myapp52-d02d6",storageBucket:"myapp52-d02d6.firebasestorage.app",messagingSenderId:"998479074578",appId:"1:998479074578:web:365ab293f9fe9e4398cfcb"};
+firebase.initializeApp(firebaseConfig); const auth=firebase.auth(); const db=firebase.firestore(); auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+let currentUser=null,isPro=false;
+function updateUI(u,d){ isPro=d&&d.isPro; document.getElementById('blueTick').style.display=isPro?'inline-flex':'none'; document.getElementById('pTick').style.display=isPro?'inline-flex':'none'; document.getElementById('proBadge').style.display=isPro?'inline-block':'none'; document.getElementById('proStatus').innerText=isPro?'PRO ✓':'Free'; document.getElementById('pStatus').innerText=isPro?'Blue Tick Verified • Lifetime':'Free'; document.getElementById('coins').innerText=d?.score||0; document.getElementById('userEmail').innerText=u.email||'Guest'; }
+function showGames(u){ currentUser=u; authBox.style.display='none'; gamesWrap.style.display='block'; db.collection('users').doc(u.uid).onSnapshot(doc=>{ if(doc.exists) updateUI(u,doc.data()); }); if(!u.isAnonymous) db.collection('users').doc(u.uid).set({email:u.email,lastLogin:new Date()},{merge:true}); loadWorldChat(); }
+auth.onAuthStateChanged(u=>{ if(u) showGames(u); });
+function login(){ auth.signInWithEmailAndPassword(email.value,pass.value).then(r=>showGames(r.user)).catch(e=>msg.innerText=e.message); }
+function signup(){ auth.createUserWithEmailAndPassword(email.value,pass.value).then(r=>{ db.collection('users').doc(r.user.uid).set({email:email.value,isPro:false,blueTick:false,score:0,createdAt:new Date()}); showGames(r.user); }).catch(e=>msg.innerText=e.message); }
+function guestLogin(){ auth.signInAnonymously().then(r=>showGames(r.user)); }
+function showTab(id,el){ document.querySelectorAll('.game').forEach(g=>g.classList.remove('active')); if(document.getElementById(id)) document.getElementById(id).classList.add('active'); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); if(el) el.classList.add('active'); }
+function verifyPro(){ const txn=document.getElementById('txnId').value.trim(); if(txn.length<6){ proMsg.innerText='Valid ID daalo'; return; } if(!currentUser){ proMsg.innerText='Login karo'; return; } db.collection('users').doc(currentUser.uid).set({isPro:true,blueTick:true,proTxn:txn,proSince:new Date(),lifetime:true},{merge:true}).then(()=>{ proMsg.innerText='✅ BLUE TICK LIFETIME ACTIVATED!'; localStorage.setItem('cjr_pro','true'); }); }
+function doSearch(v){ if(!v) return; v=v.toLowerCase(); if(v.includes('chess')) showTab('chess'); if(v.includes('snake')) showTab('snake'); if(v.includes('exam')||v.includes('gk')) showTab('exam'); if(v.includes('tic')) showTab('ttt'); }
+var game=new Chess(),board=null; function onDrop(s,t){ var m=game.move({from:s,to:t,promotion:'q'}); if(m===null) return 'snapback'; document.getElementById('chessStatus').innerText=(game.turn()=='w'?'White':'Black')+' to move'; } try{ board=Chessboard('board',{draggable:true,position:'start',onDrop:onDrop,pieceTheme:'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'});}catch(e){} function resetChess(){ game.reset(); board.start(); } function undoChess(){ if(!isPro){ alert('PRO only'); showTab('pro'); return;} game.undo(); board.position(game.fen()); }
+let ttt=['','','','','','','','',''],tttTurn='X'; function renderTTT(){ const b=document.getElementById('tttBoard'); if(!b) return; b.innerHTML=''; ttt.forEach((v,i)=>{ let d=document.createElement('div'); d.className='bg-slate-800 h-16 flex items-center justify-center font-bold rounded'; d.innerText=v; d.onclick=()=>{ if(ttt[i]||checkWin()) return; ttt[i]=tttTurn; tttTurn=tttTurn=='X'?'O':'X'; document.getElementById('tttStatus').innerText='Turn '+tttTurn; renderTTT(); if(checkWin()) document.getElementById('tttStatus').innerText='Winner '+checkWin(); }; b.appendChild(d); }); } function checkWin(){ const w=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; for(let p of w){ if(ttt[p[0]]&&ttt[p[0]]==ttt[p[1]]&&ttt[p[0]]==ttt[p[2]]) return ttt[p[0]]; } return null; } function resetTTT(){ ttt=['','','','','','','','','']; tttTurn='X'; renderTTT(); } renderTTT();
+let snake,food,dir='right',sInt,sScore=0; function startSnake(){ snake=[{x:5,y:5}]; food={x:10,y:10}; dir='right'; sScore=0; document.getElementById('snakeScore').innerText=0; clearInterval(sInt); sInt=setInterval(()=>{ const c=document.getElementById('snakeCanvas'); if(!c) return; const ctx=c.getContext('2d'); ctx.fillStyle='#000'; ctx.fillRect(0,0,300,300); let h={...snake[0]}; if(dir=='right')h.x++; if(dir=='left')h.x--; if(dir=='up')h.y--; if(dir=='down')h.y++; if(h.x<0||h.x>=15||h.y<0||h.y>=15||snake.some(s=>s.x==h.x&&s.y==h.y)){ clearInterval(sInt); alert('Over Score '+sScore); return; } snake.unshift(h); if(h.x==food.x&&h.y==food.y){ sScore+=10; document.getElementById('snakeScore').innerText=sScore; food={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)}; } else snake.pop(); ctx.fillStyle='lime'; snake.forEach(s=>ctx.fillRect(s.x*20,s.y*20,18,18)); ctx.fillStyle='red'; ctx.fillRect(food.x*20,food.y*20,18,18); },120); }
+function rollDice(){ document.getElementById('dice').innerText=Math.floor(Math.random()*6)+1; }
+let qs={Maths:[{q:"12x8=?",o:["96","86","76","106"],a:0},{q:"15*15=?",o:["225","215","235","205"],a:0},{q:"25+37=?",o:["62","72","52","82"],a:0}],Science:[{q:"H2O?",o:["Water","Fire","Air","Soil"],a:0},{q:"Sun is?",o:["Star","Planet","Moon","Comet"],a:0}],"MP GK":[{q:"MP Capital?",o:["Bhopal","Indore","Gwalior","Jabalpur"],a:0},{q:"MP me kitne jile?",o:["52","55","50","53"],a:1}],Computer:[{q:"CPU?",o:["Central Processing Unit","Computer Unit","Central Power Unit","None"],a:0}],"Chess Tactics":[{q:"Best first move?",o:["e4","a4","h4","f3"],a:0}]}; let cur=0,score=0,currentSet=[]; function startExam(){ currentSet=qs[document.getElementById('subject').value]||qs.Maths; cur=0;score=0; document.getElementById('quizBox').style.display='block'; showQ(); } function showQ(){ let q=currentSet[cur]; document.getElementById('question').innerText=`Q${cur+1}/${currentSet.length}: ${q.q}`; let o=document.getElementById('options'); o.innerHTML=''; q.o.forEach((op,i)=>{ o.innerHTML+=`<label class="block bg-slate-900 p-2 rounded mt-1 text-xs"><input type="radio" name="opt" value="${i}"> ${op}</label>`; }); } function nextQ(){ let sel=document.querySelector('input[name="opt"]:checked'); if(sel&&parseInt(sel.value)==currentSet[cur].a) score++; cur++; if(cur<currentSet.length) showQ(); else{ document.getElementById('quizBox').style.display='none'; document.getElementById('result').innerText=`Result ${score}/${currentSet.length}`; } }
+let bScore=0,bTime=30,bt,bb; function startBall(){ bScore=0;bTime=isPro?60:30; document.getElementById('bScore').innerText=0; clearInterval(bt); clearInterval(bb); spawn(); bt=setInterval(()=>{ bTime--; document.getElementById('bTime').innerText=bTime; if(bTime<=0){ clearInterval(bt); clearInterval(bb); alert('Score '+bScore); }},1000); bb=setInterval(spawn,800); } function spawn(){ let a=document.getElementById('area'); if(!a) return; let d=document.createElement('div'); d.style.cssText='position:absolute;width:35px;height:35px;background:gold;border-radius:50%;left:'+Math.random()*(a.clientWidth-35)+'px;top:'+Math.random()*(a.clientHeight-35)+'px'; d.onclick=()=>{ bScore++; document.getElementById('bScore').innerText=bScore; d.remove(); }; a.appendChild(d); setTimeout(()=>d.remove(),2000); }
+function loadWorldChat(){ db.collection('world_chat').orderBy('time','desc').limit(30).onSnapshot(snap=>{ const chat=document.getElementById('globalChat'); if(!chat) return; chat.innerHTML=''; snap.forEach(doc=>{ let data=doc.data(); let d=document.createElement('div'); d.className='py-1 border-b border-slate-800'; d.innerHTML=`<b class="${data.isPro?'text-yellow-400':''}">${data.user||'Anon'} ${data.isPro?'<span class="tick">✓</span>':''}:</b> ${data.text}`; chat.appendChild(d); }); }); }
+function sendWorld(){ const inp=document.getElementById('worldIn'); if(!inp.value.trim()) return; db.collection('world_chat').add({text:inp.value,user:currentUser.email||'Guest',isPro:isPro,time:new Date()}); inp.value=''; }
+function askAI(){ const q=document.getElementById('aiIn').value.trim(); if(!q) return; const chat=document.getElementById('aiChat'); let u=document.createElement('div'); u.innerHTML=`<div class="bg-slate-800 p-2 rounded mt-2">You: ${q}</div>`; chat.appendChild(u); let a=document.createElement('div'); a.className='bg-cyan-950 p-2 rounded mt-2'; let ans=''; try{ if(/[0-9+\-*/x%]+/.test(q)) ans='Answer: '+eval(q.replace(/x/g,'*').replace(/[^0-9+\-*/().% ]/g,'')); else if(q.toLowerCase().includes('capital')) ans='MP Capital Bhopal'; else ans=isPro?`AI Pro: ${q} ka detailed solution...`: `AI: ${q} - Full solution PRO me`; }catch{ ans='Try simple maths like 12*15'; } a.innerHTML=`AI Bhai: ${ans}`; chat.appendChild(a); document.getElementById('aiIn').value=''; chat.scrollTop=chat.scrollHeight; }
+</script>
+</body>
+</html>
