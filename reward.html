@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Daily Reward - CJR HUB</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Arial}
+body{background:#0f0f13;color:#fff;height:100vh;display:flex;align-items:center;justify-content:center}
+.ad-container{width:95%;max-width:420px;background:#1c1c22;border-radius:24px;overflow:hidden;border:1px solid #2a2a32;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;background:#21212a}
+.timer{font-size:13px;color:#a1a1b5}
+.progress{height:3px;background:#2a2a32}
+.progress-bar{height:100%;width:100%;background:#6c5ce7;transition:width 1s linear}
+.ad-box{min-height:320px;background:#15151c;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#666}
+.ad-box ins{width:100%}
+.footer{padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
+.skip-btn{background:#6c5ce7;color:#fff;border:none;padding:12px 22px;border-radius:12px;font-weight:700;opacity:.4;pointer-events:none;transition:.3s;cursor:pointer}
+.skip-btn.active{opacity:1;pointer-events:all}
+.daily-text{font-size:14px;color:#a1a1b5}
+</style>
+</head>
+<body>
+<div class="ad-container">
+  <div class="header">
+    <span class="daily-text" id="dailyText">Daily Bonus • Day 1</span>
+    <span class="timer" id="timer">Closing in 5s</span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="progress"></div></div>
+  
+  <div class="ad-box">
+    <!-- YAHI PE ADSENSE KA CODE AYEGA -->
+    <div>
+      <p style="margin-bottom:10px">🔥 Your Ad Will Show Here</p>
+      <p style="font-size:12px">Paste your AdSense code here after approval</p>
+      <!-- Example AdSense Code: 
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+    </div>
+  </div>
+
+  <div class="footer">
+    <span style="font-size:12px;color:#666">Ad • CJR HUB</span>
+    <button class="skip-btn" id="skipBtn" onclick="skipAd()">Skip Ad</button>
+  </div>
+</div>
+
+<script>
+let timeLeft = 5;
+const timerEl = document.getElementById('timer');
+const progressEl = document.getElementById('progress');
+const skipBtn = document.getElementById('skipBtn');
+
+// Daily logic
+const day = new Date().toLocaleDateString();
+const lastDay = localStorage.getItem('cjr_day');
+let streak = parseInt(localStorage.getItem('cjr_streak')||'0');
+if(lastDay !== day){ streak++; localStorage.setItem('cjr_day',day); localStorage.setItem('cjr_streak',streak); }
+document.getElementById('dailyText').innerText = `Daily Bonus • Day ${streak} • ${day}`;
+
+let interval = setInterval(()=>{
+  timeLeft--;
+  timerEl.innerText = `Closing in ${timeLeft}s`;
+  progressEl.style.width = (timeLeft/5*100)+'%';
+  if(timeLeft<=0){
+    clearInterval(interval);
+    timerEl.innerText = "You can skip now";
+    skipBtn.classList.add('active');
+    skipBtn.innerText = "Skip Ad ✕";
+  }
+},1000);
+
+function skipAd(){
+  window.location.href = "/Chess_game/";
+}
+</script>
+</body>
+</html>
