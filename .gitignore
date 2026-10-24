@@ -1,0 +1,49 @@
+# ===== FIREBASE SECRETS - KABHI PUSH MAT KARNA =====
+serviceAccountKey.json
+firebase-adminsdk-*.json
+*service-account*.json
+.env
+.env.local
+.env.production
+.env.development
+config.js
+secrets.js
+secrets.json
+private.js
+
+# ===== TERI PERSONAL FILES =====
+admin/
+secret/
+private/
+my-keys/
+passwords.txt
+admin-credentials.txt
+upi-ids.txt
+SECRETS-README.txt
+my-private-file.txt
+
+# ===== SYSTEM FILES =====
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log
+
+# ===== NODE / BUILD =====
+node_modules/
+dist/
+build/
+.next/
+.cache/
+firebase-debug.log
+firestore-debug.log
+
+# ===== BACKUP / TEMP =====
+*.bak
+*.tmp
+*.old
+*.backup
+*.zip
+*.rar
+backup/
